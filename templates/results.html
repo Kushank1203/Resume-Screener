@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Resume Ranking Results</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" />
+</head>
+<body>
+    <div class="container py-5">
+        <h1 class="text-center mb-4">Resume Ranking Results</h1>
+
+        <!-- Results Table -->
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead>
+                    <tr>
+                        <th>Rank</th>
+                        <th>Candidate</th>
+                        <th>Score</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for candidate in rankings %}
+                    <tr>
+                        <td>{{ loop.index }}</td>
+                        <td>{{ candidate.candidate_name }}</td>
+                        <td>
+                            <div class="progress">
+                                <div class="progress-bar" role="progressbar"
+                                    style="width: {{ candidate.score | float }}%;"
+                                    aria-valuenow="{{ candidate.score | float }}"
+                                    aria-valuemin="0" aria-valuemax="100">
+                                    {{ "%.1f"|format(candidate.score) }}%
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <button class="btn btn-primary btn-sm"
+                                data-bs-toggle="modal"
+                                data-bs-target="#candidateModal{{ loop.index }}">
+                                View Details
+                            </button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Candidate Detail Modals -->
+        {% for candidate in rankings %}
+        <div class="modal fade" id="candidateModal{{ loop.index }}" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">{{ candidate.candidate_name }} - Details</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <!-- Score Breakdown -->
+                        <h6>Overall Score: {{ "%.1f"|format(candidate.score) }}%</h6>
+                        <div class="progress mb-3">
+                            <div class="progress-bar bg-success" role="progressbar"
+                                style="width: {{ candidate.score }}%;"
+                                aria-valuenow="{{ candidate.score }}"
+                                aria-valuemin="0" aria-valuemax="100">
+                            </div>
+                        </div>
+
+                        <!-- Skills Match -->
+                        <h6>Skills Match:</h6>
+                        <ul class="list-group mb-3">
+                            {% for skill in candidate.score_details.matching_skills %}
+                            <li class="list-group-item list-group-item-success">{{ skill }}</li>
+                            {% endfor %}
+                        </ul>
+
+                        <h6>Missing Skills:</h6>
+                        <ul class="list-group mb-3">
+                            {% for skill in candidate.score_details.missing_skills %}
+                            <li class="list-group-item list-group-item-danger">{{ skill }}</li>
+                            {% endfor %}
+                        </ul>
+
+                        <!-- Experience -->
+                        <h6>Experience:</h6>
+                        {% if candidate.experience.positions %}
+                        <ul class="list-group mb-3">
+                            {% for position in candidate.experience.positions %}
+                            <li class="list-group-item">
+                                {{ position.title }} at {{ position.company }} 
+                                ({{ position.start_date or "N/A" }} - {{ position.end_date or "N/A" }})
+                            </li>
+                            {% endfor %}
+                        </ul>
+                        <p>Total Experience: {{ candidate.experience.total_years }} years</p>
+                        {% else %}
+                        <p>No experience data available.</p>
+                        {% endif %}
+
+                        <!-- Education -->
+                        <h6>Education:</h6>
+                        {% if candidate.education %}
+                        <ul class="list-group mb-3">
+                            {% for edu in candidate.education %}
+                            <li class="list-group-item">
+                                {{ edu.degree }} in {{ edu.field }} ({{ edu.year or "N/A" }})
+                            </li>
+                            {% endfor %}
+                        </ul>
+                        {% else %}
+                        <p>No education data available.</p>
+                        {% endif %}
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                            Close
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
