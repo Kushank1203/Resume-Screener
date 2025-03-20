@@ -79,14 +79,20 @@ def extract_experience(text):
 
 def extract_education(text):
     """Extract degree and field from resume text."""
-    degree_pattern = re.compile(r"(bachelor|master|phd|doctorate|associate)\s+(of|in)?\s*([a-zA-Z\s]+)", re.IGNORECASE)
+    degree_pattern = re.compile(
+        r"(bachelor|master|phd|doctorate|associate|b\.tech|m\.tech|be|me|bsc|msc|ba|ma)\s+(of|in)?\s*([a-zA-Z\s]+)", 
+        re.IGNORECASE
+    )
+    
     matches = degree_pattern.findall(text)
     education = []
     for match in matches:
         degree = match[0]
         field = match[2].strip()
         education.append({"degree": degree.title(), "field": field})
+    
     return education
+
 
 # ====================== Scoring ======================
 
